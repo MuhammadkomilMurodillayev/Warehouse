@@ -1,0 +1,13 @@
+spring:
+ datasource:
+  driver-class-name: org.postgresql.Driver
+  username: postgres
+  password: 19801980
+  url: jdbc:postgresql://localhost:5432/warehouse?currentSchema=main
+ flyway:
+  locations: "classpath:db/migration"
+  validate-on-migrate: false
+  encoding: UTF-8
+  out-of-order: true
+
+
