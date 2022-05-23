@@ -7,13 +7,16 @@ import com.example.warehouse.dto.warehouse.WarehouseCreateDto;
 import com.example.warehouse.dto.warehouse.WarehouseDto;
 import com.example.warehouse.dto.warehouse.WarehouseUpdateDto;
 import com.example.warehouse.service.warehouse.WarehouseService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.warehouse.controller.AbstractController.PATH;
+
 @RestController
-@RequestMapping("/warehouse/")
+@RequestMapping(PATH +"/warehouse")
 public class WarehouseController extends AbstractController<
         WarehouseService,
         WarehouseDto,
@@ -23,33 +26,37 @@ public class WarehouseController extends AbstractController<
         WarehouseCriteria> {
 
 
+    public WarehouseController(WarehouseService service) {
+        super(service);
+    }
+
     @Override
-    @PostMapping("create")
+    @PostMapping("/")
     protected ResponseEntity<DataDto<String>> create(WarehouseCreateDto dto) {
-        return null;
+        return new ResponseEntity<>(new DataDto<>(service.create(dto)), HttpStatus.OK);
     }
 
     @Override
-    @DeleteMapping("delete/{id}")
-    protected ResponseEntity<DataDto<Void>> delete(@PathVariable String id) {
-        return null;
+    @DeleteMapping("/{id}")
+    protected void delete(@PathVariable String id) {
+        service.delete(id);
     }
 
     @Override
-    @PutMapping("update")
-    protected ResponseEntity<DataDto<Void>> update(@RequestBody WarehouseUpdateDto dto) {
-        return null;
+    @PutMapping("/")
+    protected void update(@RequestBody WarehouseUpdateDto dto) {
+        service.update(dto);
     }
 
     @Override
-    @GetMapping("get/{id}")
+    @GetMapping("/{id}")
     protected ResponseEntity<DataDto<WarehouseDto>> get(@PathVariable String id) {
-        return null;
+        return new ResponseEntity<>(new DataDto<>(service.get(id)), HttpStatus.OK);
     }
 
     @Override
-    @GetMapping("getAll")
+    @GetMapping("/")
     protected ResponseEntity<DataDto<List<WarehouseDto>>> getAll(@RequestBody WarehouseCriteria criteria) {
-        return null;
+        return new ResponseEntity<>(new DataDto<>(service.getAll(criteria)), HttpStatus.OK);
     }
 }

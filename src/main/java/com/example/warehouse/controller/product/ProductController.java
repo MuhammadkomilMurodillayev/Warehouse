@@ -7,13 +7,16 @@ import com.example.warehouse.dto.product.ProductCreateDto;
 import com.example.warehouse.dto.product.ProductDto;
 import com.example.warehouse.dto.product.ProductUpdateDto;
 import com.example.warehouse.service.product.ProductService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.warehouse.controller.AbstractController.PATH;
+
 @RestController
-@RequestMapping("/product/")
+@RequestMapping(PATH +"/product/")
 public class ProductController extends AbstractController<
         ProductService,
         ProductDto,
@@ -22,33 +25,37 @@ public class ProductController extends AbstractController<
         String,
         ProductCriteria> {
 
+    public ProductController(ProductService service) {
+        super(service);
+    }
+
     @Override
     @PostMapping("create")
     protected ResponseEntity<DataDto<String>> create(@RequestBody ProductCreateDto dto) {
-        return null;
+        return new ResponseEntity<>(new DataDto<>(service.create(dto)), HttpStatus.OK);
     }
 
     @Override
     @DeleteMapping("delete/{id}")
-    protected ResponseEntity<DataDto<Void>> delete(@PathVariable String id) {
-        return null;
+    protected void delete(@PathVariable String id) {
+        service.delete(id);
     }
 
     @Override
     @PutMapping("update")
-    protected ResponseEntity<DataDto<Void>> update(@RequestBody ProductUpdateDto dto) {
-        return null;
+    protected void update(@RequestBody ProductUpdateDto dto) {
+        service.update(dto);
     }
 
     @Override
     @GetMapping("get/{id}")
-    protected ResponseEntity<DataDto<ProductDto>> get(@RequestBody String id) {
-        return null;
+    protected ResponseEntity<DataDto<ProductDto>> get(@PathVariable String id) {
+        return new ResponseEntity<>(new DataDto<>(service.get(id)), HttpStatus.OK);
     }
 
     @Override
     @GetMapping("getAll")
     protected ResponseEntity<DataDto<List<ProductDto>>> getAll(@RequestBody ProductCriteria criteria) {
-        return null;
+        return new ResponseEntity<>(new DataDto<>(service.getAll(criteria)), HttpStatus.OK);
     }
 }

@@ -12,11 +12,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Warehouse extends Auditable {
 
-    String name;
+    private String name;
 
-    String regionId;
+    private String regionId;
 
-    String organizationId;
+    private String organizationId;
 
     private Double latitude;
 

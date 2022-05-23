@@ -1,0 +1,1 @@
+alter table auth_user_warehouse drop column auth_role;

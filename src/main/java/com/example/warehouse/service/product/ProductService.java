@@ -5,9 +5,11 @@ import com.example.warehouse.dto.product.ProductCreateDto;
 import com.example.warehouse.dto.product.ProductDto;
 import com.example.warehouse.dto.product.ProductUpdateDto;
 import com.example.warehouse.service.BaseCrudService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class ProductService
         implements BaseCrudService<
                 ProductDto,

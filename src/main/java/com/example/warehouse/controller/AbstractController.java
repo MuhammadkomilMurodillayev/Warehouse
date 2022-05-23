@@ -23,11 +23,15 @@ public abstract class AbstractController<
     protected final static String VERSION = "/v1";
     public final static String PATH = API + VERSION;
 
+    public AbstractController(S service) {
+        this.service = service;
+    }
+
     protected abstract ResponseEntity<DataDto<K>> create(CD dto);
 
-    protected abstract ResponseEntity<DataDto<Void>> delete(K id);
+    protected abstract void delete(K id);
 
-    protected abstract ResponseEntity<DataDto<Void>> update(UD dto);
+    protected abstract void update(UD dto);
 
     protected abstract ResponseEntity<DataDto<D>> get(K id);
 

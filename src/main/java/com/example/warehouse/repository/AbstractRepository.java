@@ -28,15 +28,15 @@ public interface AbstractRepository<
         return null;
     }
 
-    default List<E> findAllNotDeleted() {
+    default E findAllNotDeleted() {
         return null;
     }
 
-    default Optional<E> findById(K id) {
+    default E findById(K id) {
         return null;
     }
 
-    default Optional<E> findByIdNotDeleted(K id) {
+    default E findByIdNotDeleted(K id) {
         return null;
     }
 
