@@ -6,7 +6,6 @@ import com.example.warehouse.dto.auth.LoginDto;
 import com.example.warehouse.dto.auth.SessionDto;
 import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.dto.error.AppErrorDto;
-import com.example.warehouse.exception.BadCredentialsException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +21,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -44,19 +44,21 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
+        LoginDto loginDto = null;
         try {
-            LoginDto loginDto = objectMapper.readValue(request.getReader(), LoginDto.class);
+            loginDto = objectMapper.readValue(request.getReader(), LoginDto.class);
 
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                    new UsernamePasswordAuthenticationToken(
-                            loginDto.getUsername(),
-                            loginDto.getPassword());
-
-            return authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-
-        } catch (Exception e) {
-            throw new BadCredentialsException();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(
+                        loginDto.getUsername(),
+                        loginDto.getPassword());
+
+        return authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+
     }
 
     @Override
@@ -100,10 +102,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         DataDto<AppErrorDto> resp = new DataDto<>(
                 AppErrorDto.builder()
                         .message(failed.getMessage())
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .developerMessage(Arrays.toString(failed.getStackTrace()))
+                        .status(HttpStatus.NOT_FOUND)
                         .build()
         );
-
+        response.setStatus(404);
         objectMapper.writeValue(response.getOutputStream(), resp);
     }
 }

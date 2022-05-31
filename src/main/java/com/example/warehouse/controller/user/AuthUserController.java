@@ -5,6 +5,7 @@ import com.example.warehouse.dto.auth.LoginDto;
 import com.example.warehouse.dto.auth.SessionDto;
 import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.service.user.AuthUserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class AuthUserController implements BaseController {
         return service.getToken(dto);
     }
 
+    @Operation(summary = "no working for now🤕")
     @PostMapping("/refreshToken")
     public ResponseEntity<DataDto<SessionDto>> refreshToken(HttpRequest request, HttpResource response) {
         return null;

@@ -4,6 +4,7 @@ package com.example.warehouse.criteria;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -21,4 +22,5 @@ public class AbstractCriteria implements BaseCriteria {
     public AbstractCriteria(Integer page) {
         this(5, page);
     }
+
 }

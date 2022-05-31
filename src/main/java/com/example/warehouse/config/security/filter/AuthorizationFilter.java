@@ -5,6 +5,7 @@ import com.example.warehouse.config.security.user.AuthUserDetails;
 import com.example.warehouse.config.security.jwt.JwtUtils;
 import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.dto.error.AppErrorDto;
+import com.example.warehouse.entity.auth.User;
 import com.example.warehouse.repository.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
@@ -63,12 +64,16 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                         (role) -> authorities.add(new SimpleGrantedAuthority(role))
                 );
 
-                AuthUserDetails authUserDetails = new AuthUserDetails(userRepository.findByUserName(username));
+
+                User user = userRepository.findByUserName(username);
+
+                AuthUserDetails authUserDetails = new AuthUserDetails(user);
 
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                         new UsernamePasswordAuthenticationToken(authUserDetails, null, authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                filterChain.doFilter(request, response);
             } catch (Exception e) {
                 response.setHeader("error", e.getMessage());
                 response.setStatus(HttpStatus.FORBIDDEN.value());

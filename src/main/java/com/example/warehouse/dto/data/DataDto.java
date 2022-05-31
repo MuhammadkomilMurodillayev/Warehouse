@@ -20,7 +20,9 @@ public class DataDto<T> implements Serializable {
 
     protected boolean success;
 
-    private Long totalCount;
+    private Integer totalCount;
+
+    private Long allDataCount;
 
     public DataDto(T data) {
         this.data = data;
@@ -32,8 +34,13 @@ public class DataDto<T> implements Serializable {
         this.success = false;
     }
 
-    public DataDto(T data, Long totalCount) {
+    public DataDto(T data, Integer totalCount) {
         this(data);
         this.totalCount = totalCount;
+    }
+
+    public DataDto(T data, Integer totalCount, Long allDataCount) {
+        this(data, totalCount);
+        this.allDataCount = allDataCount;
     }
 }

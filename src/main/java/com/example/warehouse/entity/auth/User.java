@@ -1,50 +1,50 @@
 package com.example.warehouse.entity.auth;
 
 import com.example.warehouse.entity.Auditable;
-import com.example.warehouse.enums.AuthGender;
+import com.example.warehouse.enums.Gender;
 import com.example.warehouse.enums.AuthRole;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@NoArgsConstructor
 public class User extends Auditable {
 
     private String username;
 
     private String password;
 
-    @JsonProperty(value = "firstname")
     private String firstName;
 
-    @JsonProperty(value = "lastname")
     private String lastName;
 
-    @JsonProperty(value = "auth_role")
     private String fullName;
 
-    @JsonProperty(value = "superadmin")
-    private boolean superAdmin;
+    private String phone;
 
-    private AuthGender gender;
+    private Gender gender;
 
-    @JsonProperty(value = "auth_role")
     private AuthRole role;
 
-    @JsonProperty(value = "organization_id")
     private String organizationId;
 
-    public User() {
-        super();
-        this.fullName = this.firstName + " " + this.lastName;
-    }
 
+    public User(String id, LocalDateTime createdAt, String createdBy, LocalDateTime updatedAt, String updatedBy, boolean deleted, short status, String username, String password, String firstName, String lastName, String fullName, Gender gender, AuthRole role, String organizationId, String phone) {
+        super(id, createdAt, createdBy, updatedAt, updatedBy, deleted, status);
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.fullName = fullName;
+        this.gender = gender;
+        this.role = role;
+        this.organizationId = organizationId;
+        this.phone = phone;
+    }
 }

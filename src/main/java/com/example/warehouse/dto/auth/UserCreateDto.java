@@ -1,8 +1,8 @@
 package com.example.warehouse.dto.auth;
 
 import com.example.warehouse.dto.BaseDto;
-import com.example.warehouse.enums.AuthGender;
 import com.example.warehouse.enums.AuthRole;
+import com.example.warehouse.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,9 +31,7 @@ public class UserCreateDto implements BaseDto {
     // @Pattern(regexp = "") TODO Write regex for phone number
     private String phone;
 
-    private boolean superAdmin;
-
-    private AuthGender gender;
+    private Gender gender;
 
     private AuthRole role;
 

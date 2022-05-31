@@ -32,8 +32,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/token",
             "/swagger-ui/**",
             "/api-docs/**",
-            PATH + "/organization/**"
-    };
+            "/api/v1/organization/**"
+        };
 
 
     private final AuthUserService authUserService;

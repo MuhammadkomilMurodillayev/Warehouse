@@ -16,4 +16,9 @@ public class BaseException extends RuntimeException {
         this.message = message;
         this.developerMessage = Arrays.toString(super.getStackTrace());
     }
+
+    public BaseException(String message, String stackTrace) {
+        this.message = message;
+        this.developerMessage = stackTrace;
+    }
 }

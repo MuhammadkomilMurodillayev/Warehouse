@@ -16,7 +16,7 @@ import java.util.List;
 import static com.example.warehouse.controller.AbstractController.PATH;
 
 @RestController
-@RequestMapping(PATH +"/product/")
+@RequestMapping(PATH +"/product")
 public class ProductController extends AbstractController<
         ProductService,
         ProductDto,
@@ -30,21 +30,23 @@ public class ProductController extends AbstractController<
     }
 
     @Override
-    @PostMapping("create")
+    @PostMapping("/create")
     protected ResponseEntity<DataDto<String>> create(@RequestBody ProductCreateDto dto) {
         return new ResponseEntity<>(new DataDto<>(service.create(dto)), HttpStatus.OK);
     }
 
     @Override
-    @DeleteMapping("delete/{id}")
-    protected void delete(@PathVariable String id) {
+    @DeleteMapping("/delete/{id}")
+    protected ResponseEntity<DataDto<String>> delete(@PathVariable String id) {
         service.delete(id);
+        return new ResponseEntity<>(new DataDto<>("deleted"),HttpStatus.OK);
     }
 
     @Override
-    @PutMapping("update")
-    protected void update(@RequestBody ProductUpdateDto dto) {
+    @PutMapping("/update")
+    protected ResponseEntity<DataDto<String>> update(@RequestBody ProductUpdateDto dto) {
         service.update(dto);
+        return new ResponseEntity<>(new DataDto<>("updated"),HttpStatus.OK);
     }
 
     @Override
@@ -57,5 +59,6 @@ public class ProductController extends AbstractController<
     @GetMapping("getAll")
     protected ResponseEntity<DataDto<List<ProductDto>>> getAll(@RequestBody ProductCriteria criteria) {
         return new ResponseEntity<>(new DataDto<>(service.getAll(criteria)), HttpStatus.OK);
+
     }
 }

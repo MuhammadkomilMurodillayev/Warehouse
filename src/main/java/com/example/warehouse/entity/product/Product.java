@@ -3,11 +3,13 @@ package com.example.warehouse.entity.product;
 import com.example.warehouse.entity.Auditable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Product extends Auditable {
 
     private String name;
@@ -18,6 +20,6 @@ public class Product extends Auditable {
 
     private Double price;
 
-    private String containerId;
+    private String categoryId;
 
 }

@@ -1,6 +1,6 @@
 package com.example.warehouse.enums;
 
-public enum AuthGender {
+public enum Gender {
 
     MALE,
 

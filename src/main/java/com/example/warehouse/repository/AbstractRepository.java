@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface AbstractRepository<
         C extends BaseCriteria,
         E extends BaseEntity,
-        K extends Serializable> extends BaseRepository{
+        K extends Serializable> extends BaseRepository {
 
     default E save(E entity) {
         return null;
@@ -42,6 +42,10 @@ public interface AbstractRepository<
 
     default void hardDelete(K id) {
 
+    }
+
+    default Long allDataCount() {
+        return null;
     }
 
     default void softDelete(K id) {

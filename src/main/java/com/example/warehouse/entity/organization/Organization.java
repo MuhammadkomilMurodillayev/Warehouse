@@ -14,15 +14,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Organization extends Auditable {
 
     private String name;
 
     private String description;
 
-    @JsonProperty("logo_path")
     private String logoPath;
+
 
     public Organization() {
         super();

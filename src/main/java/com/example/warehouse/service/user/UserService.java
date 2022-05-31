@@ -5,16 +5,22 @@ import com.example.warehouse.dto.auth.UserCreateDto;
 import com.example.warehouse.dto.auth.UserDto;
 import com.example.warehouse.dto.auth.UserUpdateDto;
 import com.example.warehouse.entity.auth.User;
-import com.example.warehouse.exception.UserNotFoundException;
+import com.example.warehouse.entity.organization.Organization;
+import com.example.warehouse.exception.ObjectNotFoundException;
 import com.example.warehouse.mapper.user.UserMapper;
 import com.example.warehouse.repository.user.UserRepository;
 import com.example.warehouse.service.AbstractService;
 import com.example.warehouse.service.BaseCrudService;
 import com.example.warehouse.validation.user.UserValidation;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.getSessionUser;
 
 @Service
 public class UserService extends AbstractService<
@@ -26,41 +32,54 @@ public class UserService extends AbstractService<
         UserUpdateDto,
         UserCreateDto,
         UserCriteria,
-        String>{
+        String> {
 
-    protected UserService(UserRepository repository, UserMapper mapper, UserValidation validation) {
+    private final PasswordEncoder passwordEncoder;
+
+    protected UserService(UserRepository repository, @Qualifier("userMapperImpl") UserMapper mapper, UserValidation validation, PasswordEncoder passwordEncoder) {
         super(repository, mapper, validation);
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public UserDto get(String id) {
-        User user = repository.findById(id);
+        User user = repository.findByIdNotDeleted(id);
         if (Objects.isNull(user))
-            throw new UserNotFoundException();
+            throw new ObjectNotFoundException();
 
         return mapper.toDto(user);
     }
 
     @Override
     public List<UserDto> getAll(UserCriteria criteria) {
-        return null;
+        validation.checkCriteria(criteria);
+        List<User> users = repository.findAll(criteria);
+
+        return mapper.toDto(users);
     }
 
     @Override
     public String create(UserCreateDto dto) {
         validation.checkCreate(dto);
         User user = mapper.fromCreateDto(dto);
-        user.setCreatedBy("-1");
-        return repository.save(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCreatedBy(getSessionUser().getId());
+        user.setUpdatedAt(user.getCreatedAt());
+        user.setUpdatedBy(user.getCreatedBy());
+        return repository.save(user).getId();
     }
 
     @Override
     public void update(UserUpdateDto dto) {
-
+        validation.checkUpdate(dto);
+        User user = repository.findByIdNotDeleted(dto.getId());
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedBy(getSessionUser().getId());
+        repository.save(mapper.fromUpdateDto(user, dto));
     }
 
     @Override
     public void delete(String id) {
-
+        repository.softDelete(id);
     }
 }

@@ -29,9 +29,9 @@ public abstract class AbstractController<
 
     protected abstract ResponseEntity<DataDto<K>> create(CD dto);
 
-    protected abstract void delete(K id);
+    protected abstract ResponseEntity<DataDto<String>> delete(K id);
 
-    protected abstract void update(UD dto);
+    protected abstract ResponseEntity<DataDto<String>> update(UD dto);
 
     protected abstract ResponseEntity<DataDto<D>> get(K id);
 

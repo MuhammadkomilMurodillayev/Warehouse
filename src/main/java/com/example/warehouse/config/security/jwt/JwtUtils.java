@@ -22,4 +22,5 @@ public class JwtUtils {
     public static JWTVerifier getVerifier() {
         return JWT.require(getAlgorithm()).build();
     }
+
 }

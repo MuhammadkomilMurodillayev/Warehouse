@@ -6,7 +6,10 @@ import com.example.warehouse.dto.auth.UserUpdateDto;
 import com.example.warehouse.entity.auth.User;
 import com.example.warehouse.mapper.BaseGenericMapper;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @Mapper(componentModel = "spring")
@@ -20,8 +23,11 @@ public interface UserMapper extends BaseGenericMapper<
     User fromCreateDto(UserCreateDto dto);
 
     @Override
-    User fromUpdateDto(UserUpdateDto dto);
+    User fromUpdateDto(@MappingTarget User user, UserUpdateDto dto);
 
     @Override
     UserDto toDto(User entity);
+
+    @Override
+    List<UserDto> toDto(List<User> entities);
 }

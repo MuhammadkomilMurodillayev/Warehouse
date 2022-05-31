@@ -9,6 +9,7 @@ import com.example.warehouse.dto.warehouse.WarehouseUpdateDto;
 import com.example.warehouse.service.warehouse.WarehouseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 import static com.example.warehouse.controller.AbstractController.PATH;
 
 @RestController
-@RequestMapping(PATH +"/warehouse")
+@RequestMapping(PATH + "/warehouse")
 public class WarehouseController extends AbstractController<
         WarehouseService,
         WarehouseDto,
@@ -31,32 +32,43 @@ public class WarehouseController extends AbstractController<
     }
 
     @Override
-    @PostMapping("/")
-    protected ResponseEntity<DataDto<String>> create(WarehouseCreateDto dto) {
+    @PreAuthorize(value = "hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PostMapping("/create")
+    protected ResponseEntity<DataDto<String>> create(@RequestBody WarehouseCreateDto dto) {
         return new ResponseEntity<>(new DataDto<>(service.create(dto)), HttpStatus.OK);
     }
 
     @Override
-    @DeleteMapping("/{id}")
-    protected void delete(@PathVariable String id) {
+    @PreAuthorize(value = "hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @DeleteMapping("/delete/{id}")
+    protected ResponseEntity<DataDto<String>> delete(@PathVariable String id) {
         service.delete(id);
+        return new ResponseEntity<>(new DataDto<>("deleted"), HttpStatus.OK);
     }
 
+
     @Override
-    @PutMapping("/")
-    protected void update(@RequestBody WarehouseUpdateDto dto) {
+    @PreAuthorize(value = "hasAnyRole('ADMIN','SUPER_ADMIN')")
+    @PutMapping("/update")
+    protected ResponseEntity<DataDto<String>> update(@RequestBody WarehouseUpdateDto dto) {
         service.update(dto);
+        return new ResponseEntity<>(new DataDto<>("updated"), HttpStatus.OK);
     }
 
     @Override
-    @GetMapping("/{id}")
+    @PreAuthorize(value = "hasAnyRole('ADMIN','SUPER_ADMIN','MANAGER')")
+    @GetMapping("/get/{id}")
     protected ResponseEntity<DataDto<WarehouseDto>> get(@PathVariable String id) {
+        System.out.print("salom %s".formatted(4));
         return new ResponseEntity<>(new DataDto<>(service.get(id)), HttpStatus.OK);
     }
 
+
+
     @Override
-    @GetMapping("/")
-    protected ResponseEntity<DataDto<List<WarehouseDto>>> getAll(@RequestBody WarehouseCriteria criteria) {
+    @PreAuthorize(value = "hasAnyRole('ADMIN','SUPER_ADMIN','MANAGER')")
+    @GetMapping("/getAll")
+    protected ResponseEntity<DataDto<List<WarehouseDto>>> getAll(WarehouseCriteria criteria) {
         return new ResponseEntity<>(new DataDto<>(service.getAll(criteria)), HttpStatus.OK);
     }
 }

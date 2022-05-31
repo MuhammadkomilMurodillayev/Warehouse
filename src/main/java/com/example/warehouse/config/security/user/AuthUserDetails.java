@@ -69,6 +69,6 @@ public class AuthUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return status == 0;
+        return status == 1;
     }
 }

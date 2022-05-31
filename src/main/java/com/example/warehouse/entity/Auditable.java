@@ -1,7 +1,6 @@
 package com.example.warehouse.entity;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@AllArgsConstructor
 public class Auditable implements BaseEntity {
 
     private String id;
@@ -29,8 +28,18 @@ public class Auditable implements BaseEntity {
 
     public Auditable() {
         this.id = UUID.randomUUID().toString().replace("-", "");
-        this.status = 0;
+        this.status = 1;
         this.createdAt = LocalDateTime.now();
     }
 
+    public Auditable(String id, boolean deleted, short status) {
+        this.id = id;
+        this.status = status;
+        this.deleted = deleted;
+    }
+
+    public Auditable(String id, short status) {
+        this.id = id;
+        this.status = status;
+    }
 }

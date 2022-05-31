@@ -1,11 +1,15 @@
 package com.example.warehouse.dto.auth;
 
 import com.example.warehouse.dto.BaseGenericDto;
-import com.example.warehouse.enums.AuthGender;
+import com.example.warehouse.enums.Gender;
 import com.example.warehouse.enums.AuthRole;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+@Getter
+@Setter
 public class UserUpdateDto extends BaseGenericDto {
 
     @NotBlank
@@ -21,9 +25,7 @@ public class UserUpdateDto extends BaseGenericDto {
     // @Pattern(regexp = "") TODO Write regex for phone number
     private String phone;
 
-    private boolean superAdmin;
-
-    private AuthGender gender;
+    private Gender gender;
 
     private AuthRole role;
 
