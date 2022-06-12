@@ -22,9 +22,10 @@ public class AuthUserDetails implements UserDetails {
     private Set<GrantedAuthority> authorities;
     private final String organizationId;
     private final short organizationStatus;
+    private final AuthRole role;
 
 
-    public  AuthUserDetails(User user, short organizationStatus) {
+    public AuthUserDetails(User user, short organizationStatus) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.password = user.getPassword();
@@ -33,6 +34,7 @@ public class AuthUserDetails implements UserDetails {
         this.authorities = processAuthorities(user.getRole());
         this.organizationId = user.getOrganizationId();
         this.organizationStatus = organizationStatus;
+        this.role = user.getRole();
     }
 
     private Set<GrantedAuthority> processAuthorities(AuthRole role) {

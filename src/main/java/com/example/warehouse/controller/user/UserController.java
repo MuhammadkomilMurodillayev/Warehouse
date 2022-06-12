@@ -7,10 +7,13 @@ import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.enums.AuthRole;
 import com.example.warehouse.repository.user.UserRepository;
 import com.example.warehouse.service.user.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -39,6 +42,7 @@ public class UserController
     }
 
     @Override
+    @Operation(summary = "create user")
     @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN','MANAGER')")
     @PostMapping("/create")
     protected ResponseEntity<DataDto<String>> create(@RequestBody UserCreateDto dto) {
@@ -46,6 +50,7 @@ public class UserController
     }
 
     @Override
+    @Operation(summary = "delete user")
     @DeleteMapping("/delete/{id}")
     protected ResponseEntity<DataDto<String>> delete(@PathVariable String id) {
         service.delete(id);
@@ -53,6 +58,7 @@ public class UserController
     }
 
     @Override
+    @Operation(summary = "update user")
     @PutMapping("/update/{id}")
     protected ResponseEntity<DataDto<String>> update(@RequestBody UserUpdateDto dto, @PathVariable String id) {
         dto.setId(id);
@@ -60,13 +66,46 @@ public class UserController
         return new ResponseEntity<>(new DataDto<>("updated"), HttpStatus.OK);
     }
 
+    @Operation(summary = "update session user")
+    @PutMapping("/update")
+    protected ResponseEntity<DataDto<String>> update(@RequestBody UserProfileUpdateDto dto) {
+        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                .firstName(dto.getFirstName())
+                .gender(dto.getGender())
+                .lastName(dto.getLastName())
+                .organizationId(getSessionUser().getOrganizationId())
+                .phone(dto.getPhone())
+                .role(getSessionUser().getRole())
+                .username(getSessionUser().getUsername())
+                .build();
+        return update(userUpdateDto, getSessionUser().getId());
+    }
+
     @Override
+    @Operation(summary = "get user")
     @GetMapping("/get/{id}")
     protected ResponseEntity<DataDto<UserDto>> get(@PathVariable String id) {
         return new ResponseEntity<>(new DataDto<>(service.get(id)), HttpStatus.OK);
     }
 
+    @Operation(summary = "get session user")
+    @GetMapping("/get")
+    protected ResponseEntity<DataDto<UserDto>> get() {
+        return get(getSessionUser().getId());
+    }
+
+    @Operation(summary = "reset password session user")
+    @PutMapping("/resetPassword")
+    protected ResponseEntity<String> resetPassword(@RequestBody UserResetPasswordDto dto) {
+
+        service.resetPassword(dto);
+
+        return new ResponseEntity<>("updated", HttpStatus.OK);
+
+    }
+
     @Override
+    @Operation(summary = "get all Users")
     @GetMapping("/getAll")
     protected ResponseEntity<DataDto<List<UserDto>>> getAll(UserCriteria criteria) {
         List<UserDto> userList = service.getAll(criteria);
@@ -75,6 +114,7 @@ public class UserController
         return new ResponseEntity<>(new DataDto<>(userList, totalData, allData), HttpStatus.OK);
     }
 
+    @Operation(summary = "get all roles")
     @GetMapping("/getAllRole")
     protected ResponseEntity<DataDto<List<String>>> getAll() {
 
@@ -85,5 +125,12 @@ public class UserController
         else if (hasRole(AuthRole.MANAGER))
             return new ResponseEntity<>(new DataDto<>(List.of("EMPLOYEE")), HttpStatus.OK);
         else return null;
+    }
+
+    @Operation(summary = "add user image")
+    @PutMapping(value = "/setImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    protected ResponseEntity<String> getAll(@RequestParam MultipartFile image) {
+        service.setImage(image);
+        return new ResponseEntity<>("added", HttpStatus.OK);
     }
 }

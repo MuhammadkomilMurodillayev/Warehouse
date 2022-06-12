@@ -21,8 +21,6 @@ public class OrganizationValidation extends AbstractValidation<OrganizationCreat
 
     @Override
     public void checkCreate(OrganizationCreateDto dto) {
-        if(!Objects.equals(dto.getLogo().getContentType(), "image/png") && !Objects.equals(dto.getLogo().getContentType(), "image/jpeg") && !Objects.equals(dto.getLogo().getContentType(), "image/jpg"))
-            throw new BadRequestException("file type invalid, please input jpg,jpeg or png");
         if (!hasRole(AuthRole.SUPER_ADMIN))
             throw new PermissionDenied();
         if (Objects.isNull(dto.getName()))

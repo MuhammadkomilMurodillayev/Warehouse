@@ -1,5 +1,6 @@
 package com.example.warehouse.service.utils;
 
+import com.example.warehouse.exception.BadRequestException;
 import com.example.warehouse.properties.FileProperties;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -55,6 +56,9 @@ public class UploadPhotoService {
 //    }
 
     public String upload(MultipartFile logo) {
+
+        if (!Objects.equals(logo.getContentType(), "image/png") && !Objects.equals(logo.getContentType(), "image/jpeg") && !Objects.equals(logo.getContentType(), "image/jpg"))
+            throw new BadRequestException("file type invalid, please input jpg,jpeg or png");
 
         String format = StringUtils.getFilenameExtension(logo.getOriginalFilename());
         String contentType = logo.getContentType();

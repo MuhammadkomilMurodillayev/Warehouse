@@ -30,6 +30,8 @@ public class User extends Auditable {
 
     private Gender gender;
 
+    private String imagePath;
+
     private AuthRole role;
 
     private String organizationId;

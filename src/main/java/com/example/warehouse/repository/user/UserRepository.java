@@ -102,6 +102,7 @@ public class UserRepository implements
         }
         return user;
     }
+
     @Override
     public User findByIdNotDeleted(String id) {
         return jdbcTemplate.queryForObject(
@@ -132,7 +133,7 @@ public class UserRepository implements
                 return jdbcTemplate.query("select * from auth_user where not deleted order by created_at desc",
                         new UserRowMapper());
 
-            }else {
+            } else {
                 return jdbcTemplate.query("select * from auth_user where not deleted and organization_id = ? order by created_at desc",
                         new UserRowMapper(),
                         criteria.getOrganizationId());
@@ -177,5 +178,9 @@ public class UserRepository implements
                 deleteId);
     }
 
+    public void setImage(String imagePath, String id) {
+        jdbcTemplate.update("update auth_user au set au.image_path=? where au.id=?",
+                imagePath, id);
+    }
 }
 

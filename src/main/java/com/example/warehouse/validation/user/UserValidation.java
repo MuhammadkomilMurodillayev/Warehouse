@@ -2,9 +2,12 @@ package com.example.warehouse.validation.user;
 
 import com.example.warehouse.criteria.auth.UserCriteria;
 import com.example.warehouse.dto.auth.UserCreateDto;
+import com.example.warehouse.dto.auth.UserResetPasswordDto;
 import com.example.warehouse.dto.auth.UserUpdateDto;
+import com.example.warehouse.entity.auth.User;
 import com.example.warehouse.enums.AuthRole;
 import com.example.warehouse.exception.AlreadyTakenException;
+import com.example.warehouse.exception.BadRequestException;
 import com.example.warehouse.exception.PermissionDenied;
 import com.example.warehouse.repository.user.UserRepository;
 import com.example.warehouse.validation.AbstractValidation;

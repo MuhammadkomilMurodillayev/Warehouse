@@ -6,7 +6,9 @@ import com.example.warehouse.dto.auth.UserUpdateDto;
 import com.example.warehouse.entity.auth.User;
 import com.example.warehouse.mapper.BaseGenericMapper;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Mappings;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,6 +22,7 @@ public interface UserMapper extends BaseGenericMapper<
         UserUpdateDto> {
 
     @Override
+    @Mapping(target = "imagePath", ignore = true)
     User fromCreateDto(UserCreateDto dto);
 
     @Override

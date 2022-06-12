@@ -12,8 +12,6 @@ public class UserDto extends BaseGenericDto {
 
     private String username;
 
-    private String password;
-
     private String firstName;
 
     private String lastName;
@@ -26,6 +24,7 @@ public class UserDto extends BaseGenericDto {
 
     private AuthRole role;
 
+    private String imagePath;
 
     private String organizationId;
 

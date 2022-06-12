@@ -3,6 +3,7 @@ package com.example.warehouse.dto.auth;
 import com.example.warehouse.dto.BaseGenericDto;
 import com.example.warehouse.enums.Gender;
 import com.example.warehouse.enums.AuthRole;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,13 +11,11 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
+@Builder
 public class UserUpdateDto extends BaseGenericDto {
 
     @NotBlank
     private String username;
-
-    @NotBlank
-    private String password;
 
     private String firstName;
 
@@ -31,5 +30,7 @@ public class UserUpdateDto extends BaseGenericDto {
 
     @NotBlank
     private String organizationId;
+
+
 
 }
