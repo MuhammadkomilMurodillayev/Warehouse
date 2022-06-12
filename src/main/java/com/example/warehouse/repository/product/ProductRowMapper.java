@@ -24,6 +24,7 @@ public class ProductRowMapper implements RowMapper<Product> {
         product.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
         product.setUpdatedBy(rs.getString("updated_by"));
         product.setStatus(rs.getShort("status"));
+        product.setCount(rs.getInt("count"));
 
         return product;
     }

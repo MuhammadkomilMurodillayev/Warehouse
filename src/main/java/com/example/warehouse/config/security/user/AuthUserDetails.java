@@ -20,15 +20,19 @@ public class AuthUserDetails implements UserDetails {
     private final short status;
     private final boolean deleted;
     private Set<GrantedAuthority> authorities;
+    private final String organizationId;
+    private final short organizationStatus;
 
 
-    public AuthUserDetails(User user) {
+    public  AuthUserDetails(User user, short organizationStatus) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.status = user.getStatus();
         this.deleted = user.isDeleted();
         this.authorities = processAuthorities(user.getRole());
+        this.organizationId = user.getOrganizationId();
+        this.organizationStatus = organizationStatus;
     }
 
     private Set<GrantedAuthority> processAuthorities(AuthRole role) {
@@ -69,6 +73,6 @@ public class AuthUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return status == 1;
+        return status == 1 && organizationStatus == 1;
     }
 }

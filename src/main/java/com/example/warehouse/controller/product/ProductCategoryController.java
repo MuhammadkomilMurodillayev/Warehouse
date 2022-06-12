@@ -9,12 +9,15 @@ import com.example.warehouse.dto.product.ProductCategoryUpdateDto;
 import com.example.warehouse.service.product.ProductCategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.example.warehouse.controller.AbstractController.PATH;
+
 @RestController
-@RequestMapping("/productCategory")
+@RequestMapping(PATH + "/productCategory")
 public class ProductCategoryController
         extends AbstractController<
         ProductCategoryService,
@@ -29,12 +32,14 @@ public class ProductCategoryController
     }
 
     @Override
+    @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN','MANAGER')")
     @PostMapping("/create")
     protected ResponseEntity<DataDto<String>> create(@RequestBody ProductCategoryCreateDto dto) {
         return new ResponseEntity<>(new DataDto<>(service.create(dto)), HttpStatus.OK);
     }
 
     @Override
+    @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN','MANAGER')")
     @DeleteMapping("/delete/{id}")
     protected ResponseEntity<DataDto<String>> delete(@PathVariable String id) {
         service.delete(id);
@@ -42,8 +47,11 @@ public class ProductCategoryController
     }
 
     @Override
-    @PutMapping("/update")
-    protected ResponseEntity<DataDto<String>> update(@RequestBody ProductCategoryUpdateDto dto) {
+    @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN','MANAGER')")
+    @PutMapping("/update/{id}")
+    protected ResponseEntity<DataDto<String>> update(@RequestBody ProductCategoryUpdateDto dto, @PathVariable String id) {
+
+        dto.setId(id);
         service.update(dto);
         return new ResponseEntity<>(new DataDto<>("updated"), HttpStatus.OK);
     }

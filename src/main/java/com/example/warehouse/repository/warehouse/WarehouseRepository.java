@@ -4,6 +4,7 @@ import com.example.warehouse.criteria.product.ProductCriteria;
 import com.example.warehouse.criteria.warehouse.WarehouseCriteria;
 import com.example.warehouse.entity.product.Product;
 import com.example.warehouse.entity.warehouse.Warehouse;
+import com.example.warehouse.enums.AuthRole;
 import com.example.warehouse.exception.NotSavedException;
 import com.example.warehouse.exception.ObjectNotFoundException;
 import com.example.warehouse.repository.AbstractRepository;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.hasRole;
 
 @Repository
 public class WarehouseRepository implements AbstractRepository<
@@ -94,10 +97,22 @@ public class WarehouseRepository implements AbstractRepository<
     @Override
     public List<Warehouse> findAllNotDeleted(WarehouseCriteria criteria) {
         try {
+            if ((criteria.getPage() == null || criteria.getSize() == null) && hasRole(AuthRole.SUPER_ADMIN) && criteria.getOrganizationId() == null)
+                return jdbcTemplate.query("select * from warehouse where not deleted order by created_at ",
+                        new WarehouseRowMapper());
 
-            return jdbcTemplate.query("select * from warehouse where not deleted order by created_at limit ? offset ? ",
-                    new WarehouseRowMapper(),
-                    criteria.getSize(), (criteria.getSize() * (criteria.getPage() - 1)));
+            else if (criteria.getPage() != null && criteria.getSize() != null && hasRole(AuthRole.SUPER_ADMIN))
+                return jdbcTemplate.query("select * from warehouse where not deleted order by created_at limit ? offset ? ",
+                        new WarehouseRowMapper(),
+                        criteria.getSize(), (criteria.getSize() * (criteria.getPage() - 1)));
+            else if (criteria.getPage() != null && criteria.getSize() != null)
+                return jdbcTemplate.query("select * from warehouse where not deleted and organization_id=? order by created_at limit ? offset ? ",
+                        new WarehouseRowMapper(),
+                        criteria.getOrganizationId(), (criteria.getSize() * (criteria.getPage() - 1)));
+            else
+                return jdbcTemplate.query("select * from warehouse where not deleted and organization_id=? order by created_at",
+                        new WarehouseRowMapper(),
+                        criteria.getOrganizationId());
 
         } catch (Exception e) {
 

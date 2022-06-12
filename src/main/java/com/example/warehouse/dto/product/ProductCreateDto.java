@@ -19,11 +19,11 @@ public class ProductCreateDto implements BaseDto {
 
     private Double price;
 
+    private Integer count;
+
     private MultipartFile image;
 
     @NotBlank
-    private ProductCategory category;
+    private String categoryId;
 
-    @NotBlank
-    private String warehouseId;
 }

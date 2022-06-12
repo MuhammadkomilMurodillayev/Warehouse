@@ -20,6 +20,10 @@ public class Product extends Auditable {
 
     private Double price;
 
+    private Integer count;
+
     private String categoryId;
+
+    private Double totalPrice;
 
 }

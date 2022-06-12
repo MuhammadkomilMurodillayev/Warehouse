@@ -6,7 +6,10 @@ import com.example.warehouse.dto.auth.LoginDto;
 import com.example.warehouse.dto.auth.SessionDto;
 import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.dto.error.AppErrorDto;
+import com.example.warehouse.exception.BlockException;
+import com.example.warehouse.repository.organization.OrganizationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -52,6 +55,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             e.printStackTrace();
         }
 
+        assert loginDto != null;
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getUsername(),
@@ -64,6 +68,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
         UserDetails user = (UserDetails) authentication.getPrincipal();
+        if(!user.isEnabled()){
+            throw new BlockException("you are blocked");
+        }
         Date expiryForToken = JwtUtils.getExpiry();
 
         List<String> authorities = user
@@ -109,4 +116,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(404);
         objectMapper.writeValue(response.getOutputStream(), resp);
     }
+
+
 }

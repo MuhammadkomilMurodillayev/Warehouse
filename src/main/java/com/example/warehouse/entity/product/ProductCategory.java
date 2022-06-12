@@ -17,19 +17,19 @@ public class ProductCategory extends Auditable {
 
     private String code;
 
-    private String organizationId;
+    private String warehouseId;
 
-    public ProductCategory(String id, short status, String name, String code, String organizationId) {
+    public ProductCategory(String id, short status, String name, String code, String warehouseId) {
         super(id, status);
         this.name = name;
         this.code = code;
-        this.organizationId = organizationId;
+        this.warehouseId = warehouseId;
     }
 
-    public ProductCategory(String id, String name, String organizationId) {
+    public ProductCategory(String id, String name, String warehouseId) {
         super.setId(id);
         this.name = name;
-        this.organizationId = organizationId;
+        this.warehouseId = warehouseId;
     }
 
 

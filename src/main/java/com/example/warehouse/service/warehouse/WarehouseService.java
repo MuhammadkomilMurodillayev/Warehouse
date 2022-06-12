@@ -44,6 +44,7 @@ public class WarehouseService
 
     @Override
     public List<WarehouseDto> getAll(WarehouseCriteria criteria) {
+        validation.checkCriteria(criteria);
         List<Warehouse> warehouses = repository.findAllNotDeleted(criteria);
 
         return mapper.toDto(warehouses);
@@ -51,6 +52,7 @@ public class WarehouseService
 
     @Override
     public String create(WarehouseCreateDto dto) {
+        dto.setOrganizationId(getSessionUser().getOrganizationId());
         validation.checkCreate(dto);
         Warehouse warehouse = mapper.fromCreateDto(dto);
         warehouse.setCreatedBy(getSessionUser().getId());

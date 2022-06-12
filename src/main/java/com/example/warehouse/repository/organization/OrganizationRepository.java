@@ -1,9 +1,12 @@
 package com.example.warehouse.repository.organization;
 
 import com.example.warehouse.criteria.organization.OrganizationCriteria;
+import com.example.warehouse.dto.organization.OrganizationLogoDto;
 import com.example.warehouse.entity.organization.Organization;
+import com.example.warehouse.enums.AuthRole;
 import com.example.warehouse.exception.NotSavedException;
 import com.example.warehouse.exception.ObjectNotFoundException;
+import com.example.warehouse.exception.PermissionDenied;
 import com.example.warehouse.repository.AbstractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,6 +14,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.getSessionUser;
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.hasRole;
 
 @Repository
 public class OrganizationRepository
@@ -20,7 +27,6 @@ public class OrganizationRepository
         String> {
 
     private final JdbcTemplate jdbcTemplate;
-
 
     @Autowired
     public OrganizationRepository(JdbcTemplate jdbcTemplate) {
@@ -45,7 +51,7 @@ public class OrganizationRepository
                         entity.getStatus());
             else
                 jdbcTemplate.update(
-                        "update organization set name=?,description=?,logo_path=?,updated_at=?,updated_by=?, status=? where id=?",
+                        "update main.organization set name=?,description=?,logo_path=?,updated_at=?,updated_by=?, status=? where id=?",
                         entity.getName(),
                         entity.getDescription(),
                         entity.getLogoPath(),
@@ -74,16 +80,32 @@ public class OrganizationRepository
 
     @Override
     public void softDelete(String deleteId) {
-        int deleted = jdbcTemplate.update(
-                "update organization set deleted = true where id = ?",
-                deleteId);
+        if (getSessionUser().getAuthorities().contains("ROLE_ADMIN"))
+            try {
+                jdbcTemplate.update(
+                        "update main.organization o set o.deleted = true where o.id = (select au.organization_id from main.auth_user au where au.id = ?)",
+                        getSessionUser().getId());
+            } catch (Exception e) {
+                throw new PermissionDenied();
+            }
+        else
+            jdbcTemplate.update(
+                    "update organization set deleted = true where id = ?",
+                    deleteId);
     }
 
     @Override
     public List<Organization> findAllNotDeleted(OrganizationCriteria criteria) {
         try {
+            if (hasRole(AuthRole.ADMIN)) {
+                return jdbcTemplate.query("select * from organization where not deleted and id=? order by created_at desc",
+                        new OrganizationRowMapper(), getSessionUser().getOrganizationId());
+            }
+            if (criteria.getSize() == null && criteria.getPage() == null)
+                return jdbcTemplate.query("select * from organization where not deleted order by created_at desc",
+                        new OrganizationRowMapper());
 
-            return jdbcTemplate.query("select * from organization where not deleted order by created_at limit ? offset ? ",
+            return jdbcTemplate.query("select * from organization where not deleted order by created_at desc limit ? offset ? ",
                     new OrganizationRowMapper(),
                     criteria.getSize(), (criteria.getSize() * (criteria.getPage() - 1)));
 
@@ -94,6 +116,7 @@ public class OrganizationRepository
     }
 
     public void setStatus(short newStatus, String newId) {
+
         jdbcTemplate.update("update organization set status=? where id=?",
                 newStatus, newId);
     }
@@ -106,5 +129,19 @@ public class OrganizationRepository
     public boolean isThere(String valId) {
         Integer val = jdbcTemplate.queryForObject("select count(*) from organization where not deleted and id=?", Integer.class, valId);
         return val == 0;
+    }
+
+    public Boolean isActive(String valId) {
+        return jdbcTemplate.queryForObject("select o.status from organization o where not o.deleted and o.id=?", Boolean.class, valId);
+
+    }
+
+    public OrganizationLogoDto getLogo(String organizationId) {
+        return jdbcTemplate.queryForObject("select o.name,o.logo_path from organization o where id=?",
+                (rs, row) -> Optional.of(
+                        new OrganizationLogoDto(rs.getString("name"), rs.getString("logo_path"))
+                ).orElse(null),
+                organizationId);
+
     }
 }

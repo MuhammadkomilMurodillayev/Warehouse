@@ -7,5 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductCategoryCriteria implements BaseCriteria {
+    private String warehouseId;
     private String organizationId;
 }

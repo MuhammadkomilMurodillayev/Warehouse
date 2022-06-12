@@ -4,7 +4,9 @@ import com.example.warehouse.criteria.auth.UserCriteria;
 import com.example.warehouse.dto.auth.UserCreateDto;
 import com.example.warehouse.dto.auth.UserUpdateDto;
 import com.example.warehouse.enums.AuthRole;
+import com.example.warehouse.exception.AlreadyTakenException;
 import com.example.warehouse.exception.PermissionDenied;
+import com.example.warehouse.repository.user.UserRepository;
 import com.example.warehouse.validation.AbstractValidation;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +15,13 @@ import java.util.Arrays;
 import static com.example.warehouse.config.security.utils.UtilsForSessionUser.*;
 
 @Component
-public class UserValidation extends AbstractValidation<UserCreateDto, UserUpdateDto> {
+public class UserValidation extends AbstractValidation<UserCreateDto, UserUpdateDto,UserCriteria> {
+
+    private final UserRepository userRepository;
+
+    public UserValidation(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public void checkCreate(UserCreateDto dto) {
@@ -28,6 +36,8 @@ public class UserValidation extends AbstractValidation<UserCreateDto, UserUpdate
                 }
             } else throw new PermissionDenied();
         }
+        if (!userRepository.usernameUnique(dto.getUsername()))
+           throw new AlreadyTakenException(dto.getUsername() + " username");
     }
 
     @Override
@@ -38,9 +48,14 @@ public class UserValidation extends AbstractValidation<UserCreateDto, UserUpdate
 
     @Override
     public void checkCriteria(UserCriteria criteria) {
-        if (!hasRole(AuthRole.SUPER_ADMIN) && criteria.getWarehouseId() == null && criteria.getOrganizationId() == null) {
+        if (!hasAnyRole(AuthRole.SUPER_ADMIN) && criteria.getWarehouseId() == null && criteria.getOrganizationId() == null) {
             throw new PermissionDenied();
         }
+    }
+
+    @Override
+    public void checkGet(String id) {
+
     }
 
 

@@ -44,7 +44,10 @@ public class ProductService
 
         Product product = repository.findByIdNotDeleted(id);
 
-        return mapper.toDto(product);
+        ProductDto productDto = mapper.toDto(product);
+        productDto.setTotalPrice(product.getPrice() * product.getCount());
+
+        return productDto;
     }
 
     @Override
@@ -56,6 +59,7 @@ public class ProductService
 
     @Override
     public String create(ProductCreateDto dto) {
+
         validation.checkCreate(dto);
         Product product = mapper.fromCreateDto(dto);
         String imagePath = uploadPhotoService.upload(dto.getImage());
@@ -63,6 +67,7 @@ public class ProductService
         product.setUpdatedBy(getSessionUser().getId());
         product.setUpdatedAt(product.getCreatedAt());
         product.setImagePath(imagePath);
+        product.setTotalPrice(product.getPrice() * product.getCount());
         return repository.save(product).getId();
     }
 
@@ -72,11 +77,22 @@ public class ProductService
         Product product = repository.findByIdNotDeleted(dto.getId());
         product.setUpdatedAt(LocalDateTime.now());
         product.setUpdatedBy(getSessionUser().getId());
+        product.setTotalPrice(product.getPrice() * product.getCount());
         repository.save(mapper.fromUpdateDto(product, dto));
     }
 
     @Override
     public void delete(String id) {
         repository.softDelete(id);
+    }
+
+    public List<ProductDto> getAllInOrganization(ProductCriteria criteria) {
+        criteria.setOrganizationId(getSessionUser().getOrganizationId());
+        return repository.findAllInOrganization(criteria);
+    }
+
+    public List<ProductDto> getAllInAllOrganization(ProductCriteria criteria) {
+
+        return repository.findAllInAllOrganization(criteria);
     }
 }

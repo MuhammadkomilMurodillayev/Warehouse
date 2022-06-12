@@ -6,9 +6,11 @@ import com.example.warehouse.dto.error.AppErrorDto;
 import com.example.warehouse.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -19,7 +21,7 @@ import java.util.Arrays;
 @ControllerAdvice("com.example.warehouse")
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = {BadCredentialsException.class})
+    @ExceptionHandler(value = { BadCredentialsException.class, InternalAuthenticationServiceException.class})
     public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException exception, WebRequest webRequest, HttpServletResponse response) {
         response.setStatus(404);
         return new ResponseEntity<>(
@@ -116,6 +118,44 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                         Arrays.toString(exception.getStackTrace()),
                                         webRequest))
                         .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {AlreadyTakenException.class})
+    public ResponseEntity<?> handleFileNotFoundException(AlreadyTakenException exception, WebRequest webRequest, HttpServletResponse response) {
+        return new ResponseEntity<>(
+                DataDto.builder()
+                        .success(false)
+                        .error(
+                                new AppErrorDto(HttpStatus.BAD_REQUEST,
+                                        exception.getMessage(),
+                                        Arrays.toString(exception.getStackTrace()),
+                                        webRequest))
+                        .build(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(value = {BadRequestException.class})
+    public ResponseEntity<?> handleBadRequestException(BadRequestException exception, WebRequest webRequest, HttpServletResponse response) {
+        return new ResponseEntity<>(
+                DataDto.builder()
+                        .success(false)
+                        .error(
+                                new AppErrorDto(HttpStatus.BAD_REQUEST,
+                                        exception.getMessage(),
+                                        Arrays.toString(exception.getStackTrace()),
+                                        webRequest))
+                        .build(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {HttpClientErrorException.class})
+    public ResponseEntity<?> handleHttpClientErrorException(HttpClientErrorException exception, WebRequest webRequest, HttpServletResponse response) {
+        return new ResponseEntity<>(
+                DataDto.builder()
+                        .success(false)
+                        .error(
+                                new AppErrorDto(HttpStatus.NOT_FOUND,
+                                        "you are blocked",
+                                        Arrays.toString(exception.getStackTrace()),
+                                        webRequest))
+                        .build(), HttpStatus.NOT_FOUND);
     }
 
 }

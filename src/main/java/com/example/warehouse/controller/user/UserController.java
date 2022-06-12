@@ -4,6 +4,7 @@ import com.example.warehouse.controller.AbstractController;
 import com.example.warehouse.criteria.auth.UserCriteria;
 import com.example.warehouse.dto.auth.*;
 import com.example.warehouse.dto.data.DataDto;
+import com.example.warehouse.enums.AuthRole;
 import com.example.warehouse.repository.user.UserRepository;
 import com.example.warehouse.service.user.UserService;
 import org.springframework.http.HttpStatus;
@@ -11,8 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.getSessionUser;
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.hasRole;
 import static com.example.warehouse.controller.AbstractController.PATH;
 
 @RestController
@@ -48,8 +53,9 @@ public class UserController
     }
 
     @Override
-    @PutMapping("/update")
-    protected ResponseEntity<DataDto<String>> update(@RequestBody UserUpdateDto dto) {
+    @PutMapping("/update/{id}")
+    protected ResponseEntity<DataDto<String>> update(@RequestBody UserUpdateDto dto, @PathVariable String id) {
+        dto.setId(id);
         service.update(dto);
         return new ResponseEntity<>(new DataDto<>("updated"), HttpStatus.OK);
     }
@@ -66,7 +72,18 @@ public class UserController
         List<UserDto> userList = service.getAll(criteria);
         Integer totalData = userList.size();
         Long allData = repository.allDataCount();
-        return new ResponseEntity<>(new DataDto<>(service.getAll(criteria), totalData, allData), HttpStatus.OK);
+        return new ResponseEntity<>(new DataDto<>(userList, totalData, allData), HttpStatus.OK);
     }
 
+    @GetMapping("/getAllRole")
+    protected ResponseEntity<DataDto<List<String>>> getAll() {
+
+        if (hasRole(AuthRole.SUPER_ADMIN))
+            return new ResponseEntity<>(new DataDto<>(List.of("EMPLOYEE", "MANAGER", "ADMIN")), HttpStatus.OK);
+        else if (hasRole(AuthRole.ADMIN))
+            return new ResponseEntity<>(new DataDto<>(List.of("EMPLOYEE", "MANAGER")), HttpStatus.OK);
+        else if (hasRole(AuthRole.MANAGER))
+            return new ResponseEntity<>(new DataDto<>(List.of("EMPLOYEE")), HttpStatus.OK);
+        else return null;
+    }
 }

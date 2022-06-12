@@ -15,7 +15,6 @@ import javax.validation.constraints.NotBlank;
 @Service
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserCreateDto implements BaseDto {
 
     @NotBlank
@@ -38,4 +37,7 @@ public class UserCreateDto implements BaseDto {
     @NotBlank
     private String organizationId;
 
+    public UserCreateDto() {
+        this.role = AuthRole.EMPLOYEE;
+    }
 }

@@ -17,5 +17,5 @@ public class ProductCategoryCreateDto implements BaseDto {
     private String name;
 
     @NotBlank
-    private String organizationId;
+    private String warehouseId;
 }

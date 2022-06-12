@@ -31,10 +31,11 @@ public abstract class AbstractController<
 
     protected abstract ResponseEntity<DataDto<String>> delete(K id);
 
-    protected abstract ResponseEntity<DataDto<String>> update(UD dto);
+    protected abstract ResponseEntity<DataDto<String>> update(UD dto,K id);
 
     protected abstract ResponseEntity<DataDto<D>> get(K id);
 
     protected abstract ResponseEntity<DataDto<List<D>>> getAll(C criteria);
+
 
 }

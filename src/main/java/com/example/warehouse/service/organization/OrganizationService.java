@@ -3,6 +3,7 @@ package com.example.warehouse.service.organization;
 import com.example.warehouse.criteria.organization.OrganizationCriteria;
 import com.example.warehouse.dto.organization.OrganizationCreateDto;
 import com.example.warehouse.dto.organization.OrganizationDto;
+import com.example.warehouse.dto.organization.OrganizationLogoDto;
 import com.example.warehouse.dto.organization.OrganizationUpdateDto;
 import com.example.warehouse.entity.organization.Organization;
 import com.example.warehouse.exception.FileNotFoundException;
@@ -52,6 +53,7 @@ public class OrganizationService
 
     @Override
     public OrganizationDto get(String id) {
+        validation.checkGet(id);
         Organization organization = repository.findByIdNotDeleted(id);
         OrganizationDto organizationDto = mapper.toDto(organization);
         organizationDto.setLogoPath(organization.getLogoPath());
@@ -82,6 +84,10 @@ public class OrganizationService
     public void update(OrganizationUpdateDto dto) {
         validation.checkUpdate(dto);
         Organization organization = repository.findByIdNotDeleted(dto.getId());
+
+        if (dto.getLogo() != null)
+            organization.setLogoPath(uploadPhotoService.upload(dto.getLogo()));
+
         organization.setUpdatedAt(LocalDateTime.now());
         organization.setUpdatedBy(getSessionUser().getId());
         repository.save(mapper.fromUpdateDto(organization, dto));
@@ -101,21 +107,12 @@ public class OrganizationService
         repository.setStatus((short) 1, id);
     }
 
-    public void getLogo(String name, HttpServletResponse response) throws FileNotFoundException {
+    public OrganizationLogoDto getLogo() {
 
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + name + "\"");
-        String logoContentType = name.substring(0, name.indexOf("."));
-        logoContentType = logoContentType.substring(0, logoContentType.length() - 32);
-        logoContentType = new String(Base64.getDecoder().decode(logoContentType));
-        response.setContentType(logoContentType);
+        return repository.getLogo(getSessionUser().getOrganizationId());
+    }
 
-        try (FileInputStream fileInputStream = new FileInputStream(fileProperties.getOrganizationLogoRootPath() + name)) {
-
-            FileCopyUtils.copy(fileInputStream, response.getOutputStream());
-
-        } catch (IOException e) {
-            throw new FileNotFoundException("logo not found", Arrays.toString(e.getStackTrace()));
-        }
-
+    public boolean organizationIsActive(String id) {
+        return repository.isActive(id);
     }
 }

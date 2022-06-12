@@ -49,8 +49,9 @@ public class WarehouseController extends AbstractController<
 
     @Override
     @PreAuthorize(value = "hasAnyRole('ADMIN','SUPER_ADMIN')")
-    @PutMapping("/update")
-    protected ResponseEntity<DataDto<String>> update(@RequestBody WarehouseUpdateDto dto) {
+    @PutMapping("/update/{id}")
+    protected ResponseEntity<DataDto<String>> update(@RequestBody WarehouseUpdateDto dto, @PathVariable String id) {
+        dto.setId(id);
         service.update(dto);
         return new ResponseEntity<>(new DataDto<>("updated"), HttpStatus.OK);
     }
@@ -59,10 +60,8 @@ public class WarehouseController extends AbstractController<
     @PreAuthorize(value = "hasAnyRole('ADMIN','SUPER_ADMIN','MANAGER')")
     @GetMapping("/get/{id}")
     protected ResponseEntity<DataDto<WarehouseDto>> get(@PathVariable String id) {
-        System.out.print("salom %s".formatted(4));
         return new ResponseEntity<>(new DataDto<>(service.get(id)), HttpStatus.OK);
     }
-
 
 
     @Override

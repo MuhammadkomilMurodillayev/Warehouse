@@ -13,7 +13,7 @@ public class OrganizationDto extends BaseGenericDto {
     private String description;
 
     private String logoPath;
-
+    
     private short status;
 
 }

@@ -21,10 +21,10 @@ public class ProductUpdateDto extends BaseGenericDto {
 
     private MultipartFile image;
 
-    @NotBlank
-    private ProductCategory category;
+    private Integer count;
 
     @NotBlank
-    private String warehouseId;
+    private String categoryId;
+
 
 }

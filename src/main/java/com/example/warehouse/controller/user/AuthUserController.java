@@ -21,7 +21,7 @@ public class AuthUserController implements BaseController {
 
     private final AuthUserService service;
 
-    @PostMapping("/login")
+    @PostMapping("/token")
     public ResponseEntity<DataDto<SessionDto>> getToken(@RequestBody LoginDto dto) {
         return service.getToken(dto);
     }

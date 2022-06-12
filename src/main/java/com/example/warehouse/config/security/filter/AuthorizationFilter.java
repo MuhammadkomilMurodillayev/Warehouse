@@ -1,12 +1,16 @@
 package com.example.warehouse.config.security.filter;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.warehouse.config.security.user.AuthUserDetails;
 import com.example.warehouse.config.security.jwt.JwtUtils;
+import com.example.warehouse.config.security.user.AuthUserDetails;
 import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.dto.error.AppErrorDto;
 import com.example.warehouse.entity.auth.User;
+import com.example.warehouse.entity.organization.Organization;
+import com.example.warehouse.exception.BlockException;
+import com.example.warehouse.repository.organization.OrganizationRepository;
 import com.example.warehouse.repository.user.UserRepository;
+import com.example.warehouse.service.organization.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,16 +38,19 @@ import static com.example.warehouse.controller.AbstractController.PATH;
 public class AuthorizationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
     private final ObjectMapper mapper;
+    private final OrganizationRepository organizationRepository;
 
-    public AuthorizationFilter(UserRepository userRepository, ObjectMapper mapper) {
+    public AuthorizationFilter(UserRepository userRepository, ObjectMapper mapper, OrganizationRepository organizationRepository) {
         this.userRepository = userRepository;
         this.mapper = mapper;
+        this.organizationRepository = organizationRepository;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         boolean isTokenPath = request.getServletPath().equals(PATH + "/auth/token");
         boolean isLoginPath = request.getServletPath().equals(PATH + "/auth/login");
+
         if (isTokenPath || isLoginPath) {
             filterChain.doFilter(request, response);
             return;
@@ -67,13 +74,22 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
                 User user = userRepository.findByUserName(username);
 
-                AuthUserDetails authUserDetails = new AuthUserDetails(user);
+                Organization organization = organizationRepository.findByIdNotDeleted(user.getOrganizationId());
+
+                AuthUserDetails authUserDetails = new AuthUserDetails(user, organization.getStatus());
+
+                if (!authUserDetails.isEnabled()) {
+                    throw new BlockException("you are blocked");
+                }
 
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                         new UsernamePasswordAuthenticationToken(authUserDetails, null, authorities);
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
                 filterChain.doFilter(request, response);
+
+
             } catch (Exception e) {
                 response.setHeader("error", e.getMessage());
                 response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -83,6 +99,5 @@ public class AuthorizationFilter extends OncePerRequestFilter {
             }
         } else
             filterChain.doFilter(request, response);
-
     }
 }

@@ -7,6 +7,7 @@ import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.entity.auth.User;
 import com.example.warehouse.exception.BlockException;
 import com.example.warehouse.properties.UrlProperties;
+import com.example.warehouse.repository.organization.OrganizationRepository;
 import com.example.warehouse.repository.user.UserRepository;
 import com.example.warehouse.service.BaseService;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -29,11 +30,13 @@ public class AuthUserService implements UserDetailsService, BaseService {
     private final UrlProperties urlProperties;
     private final ServerProperties serverProperties;
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
 
-    public AuthUserService(UrlProperties urlProperties, ServerProperties serverProperties, UserRepository userRepository) {
+    public AuthUserService(UrlProperties urlProperties, ServerProperties serverProperties, UserRepository userRepository, OrganizationRepository organizationRepository) {
         this.urlProperties = urlProperties;
         this.serverProperties = serverProperties;
         this.userRepository = userRepository;
+        this.organizationRepository = organizationRepository;
     }
 
 
@@ -53,12 +56,12 @@ public class AuthUserService implements UserDetailsService, BaseService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByUserName(username);
-        if (user.getStatus() == 1)
-            return new AuthUserDetails(user);
+        if (user != null)
+            return new AuthUserDetails(user, organizationRepository.findByIdNotDeleted(user.getOrganizationId()).getStatus());
         else {
-            throw new BlockException("you are blocked, you can`t login");
+            throw new BlockException("user not found");
         }
     }
 }

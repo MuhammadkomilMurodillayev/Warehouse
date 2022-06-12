@@ -21,4 +21,6 @@ public class SessionDto implements Serializable {
 
     private String role;
 
+    private String logoPath;
+
 }

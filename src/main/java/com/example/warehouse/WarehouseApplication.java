@@ -4,14 +4,23 @@ import com.example.warehouse.dto.auth.UserCreateDto;
 import com.example.warehouse.dto.organization.OrganizationCreateDto;
 import com.example.warehouse.enums.Gender;
 import com.example.warehouse.enums.AuthRole;
+import com.example.warehouse.exception.BlockException;
 import com.example.warehouse.service.organization.OrganizationService;
 import com.example.warehouse.service.user.UserService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import java.util.Scanner;
+
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.getSessionUser;
 
 @OpenAPIDefinition
 @SpringBootApplication
@@ -51,7 +60,5 @@ public class WarehouseApplication {
                     .build();
             userService.create(dto);
         };
-
-
     }
 }

@@ -5,6 +5,7 @@ import com.example.warehouse.criteria.organization.OrganizationCriteria;
 import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.dto.organization.OrganizationCreateDto;
 import com.example.warehouse.dto.organization.OrganizationDto;
+import com.example.warehouse.dto.organization.OrganizationLogoDto;
 import com.example.warehouse.dto.organization.OrganizationUpdateDto;
 import com.example.warehouse.repository.organization.OrganizationRepository;
 import com.example.warehouse.service.organization.OrganizationService;
@@ -14,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -33,12 +33,14 @@ public class OrganizationController
         OrganizationUpdateDto,
         String,
         OrganizationCriteria> {
+
     private final OrganizationRepository repository;
 
     public OrganizationController(OrganizationService service, OrganizationRepository repository) {
         super(service);
         this.repository = repository;
     }
+
     @Operation(summary = "create organization")
     @PreAuthorize(value = "hasRole('SUPER_ADMIN')")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -63,6 +65,7 @@ public class OrganizationController
         return new ResponseEntity<>(new DataDto<>("deleted"), HttpStatus.OK);
     }
 
+
     @Operation(summary = "update organization", description = "null data ketmasin")
     @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN')")
     @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -85,14 +88,14 @@ public class OrganizationController
     }
 
     @Operation(summary = "get organization logo")
-    @GetMapping("getLogo/{fileName}")
-    protected void getLogo(@PathVariable(name = "fileName") String name, HttpServletResponse response) throws FileNotFoundException {
-        service.getLogo(name,response);
+    @GetMapping("/getLogo")
+    protected ResponseEntity<DataDto<OrganizationLogoDto>> getLogo() {
+        return new ResponseEntity<>(new DataDto<>(service.getLogo()), HttpStatus.OK);
     }
 
     @Override
     @Operation(summary = "get organizations", description = "all organization in server")
-    @PreAuthorize(value = "hasRole('SUPER_ADMIN')")
+    @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN')")
     @GetMapping("/getAll")
     protected ResponseEntity<DataDto<List<OrganizationDto>>> getAll(OrganizationCriteria criteria) {
         List<OrganizationDto> organizationList = service.getAll(criteria);
@@ -117,7 +120,6 @@ public class OrganizationController
         return new ResponseEntity<>(new DataDto<>("activated"), HttpStatus.OK);
     }
 
-
     @Deprecated
     @Override
     protected ResponseEntity<DataDto<String>> create(OrganizationCreateDto dto) {
@@ -126,7 +128,7 @@ public class OrganizationController
 
     @Deprecated
     @Override
-    protected ResponseEntity<DataDto<String>> update(@RequestBody OrganizationUpdateDto dto) {
+    protected ResponseEntity<DataDto<String>> update(@RequestBody OrganizationUpdateDto dto, String id) {
         return null;
     }
 }

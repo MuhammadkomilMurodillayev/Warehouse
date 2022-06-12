@@ -3,6 +3,7 @@ package com.example.warehouse.config.security.utils;
 import com.example.warehouse.config.security.user.AuthUserDetails;
 import com.example.warehouse.entity.auth.User;
 import com.example.warehouse.enums.AuthRole;
+import com.example.warehouse.exception.BlockException;
 import com.example.warehouse.repository.user.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +24,7 @@ public record UtilsForSessionUser(UserRepository repository) {
 
         String findRole = "ROLE_" + authRole.name();
         return getSessionUser().getAuthorities().stream().anyMatch((role -> role.toString().equalsIgnoreCase(findRole)));
+
     }
 
     public static boolean hasAnyRole(AuthRole... authRoles) {

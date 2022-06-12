@@ -36,7 +36,7 @@ public class UserService extends AbstractService<
 
     private final PasswordEncoder passwordEncoder;
 
-    protected UserService(UserRepository repository, @Qualifier("userMapperImpl") UserMapper mapper, UserValidation validation, PasswordEncoder passwordEncoder) {
+    protected UserService(UserRepository repository, UserMapper mapper, UserValidation validation, PasswordEncoder passwordEncoder) {
         super(repository, mapper, validation);
         this.passwordEncoder = passwordEncoder;
     }
@@ -52,8 +52,9 @@ public class UserService extends AbstractService<
 
     @Override
     public List<UserDto> getAll(UserCriteria criteria) {
+        criteria.setOrganizationId(getSessionUser().getOrganizationId());
         validation.checkCriteria(criteria);
-        List<User> users = repository.findAll(criteria);
+        List<User> users = repository.findAllNotDeleted(criteria);
 
         return mapper.toDto(users);
     }
@@ -73,9 +74,12 @@ public class UserService extends AbstractService<
     public void update(UserUpdateDto dto) {
         validation.checkUpdate(dto);
         User user = repository.findByIdNotDeleted(dto.getId());
+        user = mapper.fromUpdateDto(user, dto);
         user.setUpdatedAt(LocalDateTime.now());
         user.setUpdatedBy(getSessionUser().getId());
-        repository.save(mapper.fromUpdateDto(user, dto));
+        user.setFullName(user.getFirstName() + " " + user.getLastName());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        repository.save(user);
     }
 
     @Override
