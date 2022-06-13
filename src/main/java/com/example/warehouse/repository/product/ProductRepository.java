@@ -2,9 +2,7 @@ package com.example.warehouse.repository.product;
 
 import com.example.warehouse.criteria.product.ProductCriteria;
 import com.example.warehouse.dto.product.ProductDto;
-import com.example.warehouse.entity.auth.User;
 import com.example.warehouse.entity.product.Product;
-import com.example.warehouse.entity.product.ProductCategory;
 import com.example.warehouse.exception.NotSavedException;
 import com.example.warehouse.exception.ObjectNotFoundException;
 import com.example.warehouse.repository.AbstractRepository;
@@ -14,8 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static com.example.warehouse.config.security.utils.UtilsForSessionUser.hasRole;
 
 @Repository
 public class ProductRepository implements AbstractRepository<
