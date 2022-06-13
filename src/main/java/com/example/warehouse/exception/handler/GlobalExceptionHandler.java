@@ -93,7 +93,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {BlockException.class})
-    public ResponseEntity<?> handleFileNotFoundException(BlockException exception, WebRequest webRequest, HttpServletResponse response) {
+    public ResponseEntity<?> handleBlockException(BlockException exception, WebRequest webRequest, HttpServletResponse response) {
         response.setStatus(421);
         return new ResponseEntity<>(
                 DataDto.builder()
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {AlreadyExitsException.class})
-    public ResponseEntity<?> handleFileNotFoundException(AlreadyExitsException exception, WebRequest webRequest, HttpServletResponse response) {
+    public ResponseEntity<?> handleAlreadyExitsException(AlreadyExitsException exception, WebRequest webRequest, HttpServletResponse response) {
         response.setStatus(400);
         return new ResponseEntity<>(
                 DataDto.builder()
@@ -152,7 +152,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         .success(false)
                         .error(
                                 new AppErrorDto(HttpStatus.NOT_FOUND,
-                                        "you are blocked",
+                                        "bad credentials",
+                                        Arrays.toString(exception.getStackTrace()),
+                                        webRequest))
+                        .build(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleInternalAuthenticationServiceException(InternalAuthenticationServiceException exception, WebRequest webRequest) {
+        return new ResponseEntity<>(
+                DataDto.builder()
+                        .success(false)
+                        .error(
+                                new AppErrorDto(HttpStatus.NOT_FOUND,
+                                        "bad credentials",
                                         Arrays.toString(exception.getStackTrace()),
                                         webRequest))
                         .build(), HttpStatus.NOT_FOUND);

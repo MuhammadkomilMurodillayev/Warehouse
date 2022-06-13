@@ -10,10 +10,11 @@ import org.springframework.stereotype.Component;
 import static com.example.warehouse.config.security.utils.UtilsForSessionUser.*;
 
 @Component
-public class WarehouseValidation extends AbstractValidation<WarehouseCreateDto, WarehouseUpdateDto,WarehouseCriteria> {
+public class WarehouseValidation extends AbstractValidation<WarehouseCreateDto, WarehouseUpdateDto, WarehouseCriteria> {
     @Override
     public void checkCreate(WarehouseCreateDto dto) {
-
+        if (hasAnyRole(AuthRole.ADMIN, AuthRole.MANAGER))
+            dto.setOrganizationId(getSessionUser().getOrganizationId());
     }
 
     @Override
@@ -23,7 +24,7 @@ public class WarehouseValidation extends AbstractValidation<WarehouseCreateDto, 
 
     @Override
     public void checkCriteria(WarehouseCriteria criteria) {
-        if (hasAnyRole(AuthRole.ADMIN,AuthRole.MANAGER)){
+        if (hasAnyRole(AuthRole.ADMIN, AuthRole.MANAGER)) {
             criteria.setOrganizationId(getSessionUser().getOrganizationId());
         }
     }

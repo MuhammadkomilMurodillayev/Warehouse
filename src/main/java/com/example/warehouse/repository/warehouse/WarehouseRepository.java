@@ -131,4 +131,11 @@ public class WarehouseRepository implements AbstractRepository<
                 "update warehouse set deleted = true where id = ?",
                 deleteId);
     }
+
+    public String getWarehouseId(String userId) {
+
+        return jdbcTemplate.queryForObject("select w.warehouse_id from auth_user_warehouse w where w.auth_user_id=?",
+                String.class,
+                userId);
+    }
 }

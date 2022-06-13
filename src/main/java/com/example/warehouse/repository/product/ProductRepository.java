@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.example.warehouse.config.security.utils.UtilsForSessionUser.hasRole;
+
 @Repository
 public class ProductRepository implements AbstractRepository<
         ProductCriteria,
@@ -48,7 +50,7 @@ public class ProductRepository implements AbstractRepository<
                         entity.getTotalPrice());
             else
                 jdbcTemplate.update(
-                        "update product set name=?,description=?,imagepath=?,price=?,updated_at=?,updated_by=?, status=?,total_price=? where id=?",
+                        "update product set name=?,description=?,imagepath=?,price=?,updated_at=?,updated_by=?, status=?,total_price=?,count=? where id=?",
                         entity.getName(),
                         entity.getDescription(),
                         entity.getImagePath(),
@@ -57,6 +59,7 @@ public class ProductRepository implements AbstractRepository<
                         entity.getUpdatedBy(),
                         entity.getStatus(),
                         entity.getTotalPrice(),
+                        entity.getCount(),
                         entity.getId());
 
         } catch (Exception e) {
@@ -84,17 +87,20 @@ public class ProductRepository implements AbstractRepository<
     @Override
     public List<Product> findAllNotDeleted(ProductCriteria criteria) {
         try {
-            if ((criteria.getPage() == null || criteria.getSize() == null) && criteria.getCategoryId() == null)
-                return jdbcTemplate.query("select * from product where not deleted order by created_at ",
-                        new ProductRowMapper());
-
             if (criteria.getCategoryId() != null)
                 return jdbcTemplate.query("select * from product where not deleted and category_id=? order by created_at",
                         new ProductRowMapper(), criteria.getCategoryId());
 
-            return jdbcTemplate.query("select * from product where not deleted order by created_at limit ? offset ? ",
-                    new ProductRowMapper(),
-                    criteria.getSize(), (criteria.getSize() * (criteria.getPage() - 1)));
+            if (criteria.getWarehouseId() != null)
+                return jdbcTemplate.query("select pr.* from main.product pr " +
+                                " inner join" +
+                                " main.product_category pc on pc.id = pr.category_id where not pr.deleted and not pc.deleted and pc.warehouse_id =? ",
+                        new ProductRowMapper(),
+                        criteria.getWarehouseId());
+
+            return jdbcTemplate.query("select * from product where not deleted  order by created_at desc ",
+                    new ProductRowMapper()
+            );
 
         } catch (Exception e) {
 
@@ -112,11 +118,11 @@ public class ProductRepository implements AbstractRepository<
                         "                   t.price,\n" +
                         "                   t.organization_id\n" +
                         "            from (select w.organization_id, p.name as product_name, p.price, p.total_price, p.count\n" +
-                            "                  from main.product_category pc\n" +
+                        "                  from main.product_category pc\n" +
                         "                           inner join main.warehouse w on pc.warehouse_id = w.id\n" +
                         "                           inner join main.product p on pc.id = p.category_id) t\n" +
                         "            group by t.price, t.product_name, t.organization_id) t1\n" +
-                        "               inner join main.organization o on t1.organization_id = o.id) t2\n" +
+                        "               inner join main.organization o on t1.organization_id = o.id where not o.deleted) t2\n" +
                         "where t2.organization_id=?",
                 new ProductDtoRowMapper(), criteria.getOrganizationId());
     }
@@ -131,9 +137,9 @@ public class ProductRepository implements AbstractRepository<
                         "      from (select w.organization_id, p.name as product_name, p.price, p.total_price, p.count " +
                         "            from main.product_category pc " +
                         "                     inner join main.warehouse w on pc.warehouse_id = w.id " +
-                        "                     inner join main.product p on pc.id = p.category_id) t "+
+                        "                     inner join main.product p on pc.id = p.category_id) t " +
                         "      group by t.price, t.product_name, t.organization_id) t1 " +
-                        "         inner join main.organization o on t1.organization_id = o.id;",
+                        "         inner join main.organization o on t1.organization_id = o.id where not o.deleted;",
                 new ProductDtoRowMapper());
     }
 

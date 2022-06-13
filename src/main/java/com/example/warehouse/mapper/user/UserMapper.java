@@ -22,7 +22,6 @@ public interface UserMapper extends BaseGenericMapper<
         UserUpdateDto> {
 
     @Override
-    @Mapping(target = "imagePath", ignore = true)
     User fromCreateDto(UserCreateDto dto);
 
     @Override

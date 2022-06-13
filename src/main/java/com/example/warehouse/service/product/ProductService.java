@@ -52,6 +52,7 @@ public class ProductService
 
     @Override
     public List<ProductDto> getAll(ProductCriteria criteria) {
+        validation.checkCriteria(criteria);
         List<Product> products = repository.findAllNotDeleted(criteria);
 
         return mapper.toDto(products);
@@ -67,7 +68,7 @@ public class ProductService
         product.setUpdatedBy(getSessionUser().getId());
         product.setUpdatedAt(product.getCreatedAt());
         product.setImagePath(imagePath);
-        product.setTotalPrice(product.getPrice() * product.getCount());
+        product.setTotalPrice(dto.getPrice() * dto.getCount());
         return repository.save(product).getId();
     }
 
@@ -77,7 +78,7 @@ public class ProductService
         Product product = repository.findByIdNotDeleted(dto.getId());
         product.setUpdatedAt(LocalDateTime.now());
         product.setUpdatedBy(getSessionUser().getId());
-        product.setTotalPrice(product.getPrice() * product.getCount());
+        product.setTotalPrice(dto.getPrice() * dto.getCount());
         repository.save(mapper.fromUpdateDto(product, dto));
     }
 

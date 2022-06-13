@@ -5,6 +5,7 @@ import com.example.warehouse.criteria.auth.UserCriteria;
 import com.example.warehouse.dto.auth.*;
 import com.example.warehouse.dto.data.DataDto;
 import com.example.warehouse.enums.AuthRole;
+import com.example.warehouse.enums.Gender;
 import com.example.warehouse.repository.user.UserRepository;
 import com.example.warehouse.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,6 +47,7 @@ public class UserController
     @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN','MANAGER')")
     @PostMapping("/create")
     protected ResponseEntity<DataDto<String>> create(@RequestBody UserCreateDto dto) {
+
         return new ResponseEntity<>(new DataDto<>(service.create(dto)), HttpStatus.OK);
     }
 
@@ -67,18 +69,21 @@ public class UserController
     }
 
     @Operation(summary = "update session user")
-    @PutMapping("/update")
-    protected ResponseEntity<DataDto<String>> update(@RequestBody UserProfileUpdateDto dto) {
-        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
-                .firstName(dto.getFirstName())
-                .gender(dto.getGender())
-                .lastName(dto.getLastName())
-                .organizationId(getSessionUser().getOrganizationId())
-                .phone(dto.getPhone())
-                .role(getSessionUser().getRole())
-                .username(getSessionUser().getUsername())
+    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    protected ResponseEntity<String> update(@RequestParam String firstName,
+                                            @RequestParam String lastName,
+                                            @RequestParam String gender,
+                                            @RequestParam String phone,
+                                            @RequestParam MultipartFile image) {
+        UserProfileUpdateDto dto = UserProfileUpdateDto.builder()
+                .lastName(lastName)
+                .firstName(firstName)
+                .gender(Gender.valueOf(gender.toUpperCase()))
+                .image(image)
+                .phone(phone)
                 .build();
-        return update(userUpdateDto, getSessionUser().getId());
+        service.update(dto);
+        return new ResponseEntity<>("updated", HttpStatus.OK);
     }
 
     @Override
@@ -119,18 +124,11 @@ public class UserController
     protected ResponseEntity<DataDto<List<String>>> getAll() {
 
         if (hasRole(AuthRole.SUPER_ADMIN))
-            return new ResponseEntity<>(new DataDto<>(List.of("EMPLOYEE", "MANAGER", "ADMIN")), HttpStatus.OK);
+            return new ResponseEntity<>(new DataDto<>(List.of("change role", "ADMIN")), HttpStatus.OK);
         else if (hasRole(AuthRole.ADMIN))
-            return new ResponseEntity<>(new DataDto<>(List.of("EMPLOYEE", "MANAGER")), HttpStatus.OK);
+            return new ResponseEntity<>(new DataDto<>(List.of("change role", "EMPLOYEE", "MANAGER")), HttpStatus.OK);
         else if (hasRole(AuthRole.MANAGER))
-            return new ResponseEntity<>(new DataDto<>(List.of("EMPLOYEE")), HttpStatus.OK);
+            return new ResponseEntity<>(new DataDto<>(List.of("change role", "EMPLOYEE")), HttpStatus.OK);
         else return null;
-    }
-
-    @Operation(summary = "add user image")
-    @PutMapping(value = "/setImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    protected ResponseEntity<String> getAll(@RequestParam MultipartFile image) {
-        service.setImage(image);
-        return new ResponseEntity<>("added", HttpStatus.OK);
     }
 }

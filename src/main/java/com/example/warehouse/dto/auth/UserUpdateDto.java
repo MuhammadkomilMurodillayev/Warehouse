@@ -31,6 +31,8 @@ public class UserUpdateDto extends BaseGenericDto {
     @NotBlank
     private String organizationId;
 
+    private String warehouseId;
+
 
 
 }

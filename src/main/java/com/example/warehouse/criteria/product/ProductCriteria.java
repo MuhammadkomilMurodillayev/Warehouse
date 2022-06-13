@@ -10,6 +10,8 @@ public class ProductCriteria extends AbstractCriteria {
 
     private String categoryId;
 
+    private String warehouseId;
+
     private String organizationId;
 
     public ProductCriteria(Integer size, Integer page) {

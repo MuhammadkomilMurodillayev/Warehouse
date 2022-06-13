@@ -45,6 +45,7 @@ public class ProductCategoryService extends
     @Override
     public List<ProductCategoryDto> getAll(ProductCategoryCriteria criteria) {
         validation.checkCriteria(criteria);
+
         List<ProductCategory> productCategories = repository.findAllNotDeleted(criteria);
 
         return mapper.toDto(productCategories);

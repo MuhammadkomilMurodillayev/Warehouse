@@ -12,10 +12,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.warehouse.config.security.utils.UtilsForSessionUser.hasRole;
 
@@ -65,11 +62,11 @@ public class UserRepository implements
     @Override
     public User save(User user) {
         try {
-            if (isThere(user.getId()))
+            if (isThere(user.getId())) {
                 jdbcTemplate.update("insert into auth_user(id,username,password,fullname,firstname,lastname,gender,organization_id,created_at,created_by,updated_at,updated_by,status,role,phone)" +
                                 " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         user.getId(),
-                        user.getUsername(),
+                        user.getUsername().toLowerCase(),
                         user.getPassword(),
                         user.getFirstName() + " " + user.getLastName(),
                         user.getFirstName(),
@@ -83,11 +80,12 @@ public class UserRepository implements
                         user.getStatus(),
                         user.getRole().name(),
                         user.getPhone());
-            else
+
+
+            } else
                 jdbcTemplate.update(
-                        "update main.auth_user set username=?, password=?, firstname=?, lastname=?, fullname=?, gender=?, organization_id=?, updated_at=?, updated_by=?, status=? where id=?",
-                        user.getUsername(),
-                        user.getPassword(),
+                        "update main.auth_user set username=?, firstname=?, lastname=?, fullname=?, gender=?, organization_id=?,  updated_by=?,updated_at=?, status=?, image_path=?,role=? where id=?",
+                        user.getUsername().toLowerCase(),
                         user.getFirstName(),
                         user.getLastName(),
                         user.getFullName(),
@@ -96,6 +94,8 @@ public class UserRepository implements
                         user.getUpdatedBy(),
                         user.getUpdatedAt(),
                         user.getStatus(),
+                        user.getImagePath(),
+                        user.getRole().name(),
                         user.getId());
         } catch (Exception e) {
             throw new NotSavedException("Not saved, please try again", Arrays.toString(e.getStackTrace()));
@@ -120,7 +120,12 @@ public class UserRepository implements
                         new UserRowMapper(),
                         criteria.getWarehouseId(), criteria.getSize(), (criteria.getSize() * (criteria.getPage() - 1)));
 
-            } else if (criteria.getPage() != null && criteria.getSize() != null) {
+            } else if (criteria.getPage() == null && criteria.getSize() == null && criteria.getOrganizationId() != null) {
+                return jdbcTemplate.query("select * from auth_user where not deleted and organization_id = ? order by created_at desc ",
+                        new UserRowMapper(),
+                        criteria.getOrganizationId());
+
+            } else if (criteria.getPage() != null && criteria.getSize() != null && criteria.getOrganizationId() != null) {
                 return jdbcTemplate.query("select * from auth_user where not deleted and organization_id = ? order by created_at desc limit ? offset ? ",
                         new UserRowMapper(),
                         criteria.getOrganizationId(), criteria.getSize(), (criteria.getSize() * (criteria.getPage() - 1)));
@@ -129,15 +134,17 @@ public class UserRepository implements
                 return jdbcTemplate.query("select * from auth_user  where not deleted  order by created_at desc limit ? offset ? ",
                         new UserRowMapper(),
                         criteria.getSize(), (criteria.getSize() * (criteria.getPage() - 1)));
+
             } else if (hasRole(AuthRole.SUPER_ADMIN)) {
-                return jdbcTemplate.query("select * from auth_user where not deleted order by created_at desc",
+                return jdbcTemplate.query("select au.* " +
+                                "from main.auth_user au " +
+                                "         inner join main.organization o on o.id = au.organization_id " +
+                                "where not au.deleted " +
+                                "  and not o.deleted " +
+                                "order by au.created_at desc",
                         new UserRowMapper());
 
-            } else {
-                return jdbcTemplate.query("select * from auth_user where not deleted and organization_id = ? order by created_at desc",
-                        new UserRowMapper(),
-                        criteria.getOrganizationId());
-            }
+            } else return null;
 
         } catch (Exception e) {
 
@@ -178,9 +185,22 @@ public class UserRepository implements
                 deleteId);
     }
 
-    public void setImage(String imagePath, String id) {
-        jdbcTemplate.update("update auth_user au set au.image_path=? where au.id=?",
-                imagePath, id);
+    public void saveRelationUserAndWarehouse(String warehouseId, String employeeId) {
+        if (isThereEmployee(employeeId))
+            jdbcTemplate.update("insert into auth_user_warehouse(auth_user_id,warehouse_id) values(?,?)",
+                    employeeId,
+                    warehouseId);
+        else jdbcTemplate.update("update auth_user_warehouse set warehouse_id = ? where auth_user_id=?",
+                warehouseId,
+                employeeId);
+    }
+
+    public boolean isThereEmployee(String valId) {
+        Integer val = jdbcTemplate.queryForObject("select count(*) from auth_user_warehouse where auth_user_id=?", Integer.class, valId);
+        if (val == null) {
+            val = 0;
+        }
+        return val == 0;
     }
 }
 

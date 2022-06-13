@@ -1,13 +1,12 @@
 package com.example.warehouse.validation.product;
 
-import com.example.warehouse.criteria.auth.UserCriteria;
 import com.example.warehouse.criteria.product.ProductCategoryCriteria;
 import com.example.warehouse.dto.product.ProductCategoryCreateDto;
 import com.example.warehouse.dto.product.ProductCategoryUpdateDto;
 import com.example.warehouse.enums.AuthRole;
 import com.example.warehouse.exception.BlockException;
-import com.example.warehouse.exception.PermissionDenied;
 import com.example.warehouse.repository.product.ProductCategoryRepository;
+import com.example.warehouse.repository.warehouse.WarehouseRepository;
 import com.example.warehouse.service.organization.OrganizationService;
 import com.example.warehouse.validation.AbstractValidation;
 import org.springframework.stereotype.Component;
@@ -19,10 +18,12 @@ public class ProductCategoryValidator
         extends AbstractValidation<ProductCategoryCreateDto, ProductCategoryUpdateDto, ProductCategoryCriteria> {
 
     private final ProductCategoryRepository productCategoryRepository;
+    private final WarehouseRepository warehouseRepository;
     private final OrganizationService organizationService;
 
-    public ProductCategoryValidator(ProductCategoryRepository productCategoryRepository, OrganizationService organizationService) {
+    public ProductCategoryValidator(ProductCategoryRepository productCategoryRepository, WarehouseRepository warehouseRepository, OrganizationService organizationService) {
         this.productCategoryRepository = productCategoryRepository;
+        this.warehouseRepository = warehouseRepository;
         this.organizationService = organizationService;
     }
 
@@ -42,8 +43,8 @@ public class ProductCategoryValidator
 
     @Override
     public void checkCriteria(ProductCategoryCriteria criteria) {
-        if (criteria.getWarehouseId() == null || criteria.getOrganizationId() == null && (!hasAnyRole(AuthRole.ADMIN, AuthRole.SUPER_ADMIN)))
-            throw new PermissionDenied();
+        if (hasRole(AuthRole.EMPLOYEE))
+            criteria.setWarehouseId(warehouseRepository.getWarehouseId(getSessionUser().getId()));
     }
 
     @Override

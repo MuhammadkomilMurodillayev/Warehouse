@@ -3,10 +3,7 @@ package com.example.warehouse.dto.auth;
 import com.example.warehouse.dto.BaseDto;
 import com.example.warehouse.enums.AuthRole;
 import com.example.warehouse.enums.Gender;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;
@@ -15,6 +12,8 @@ import javax.validation.constraints.NotBlank;
 @Service
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
+@Setter
 public class UserCreateDto implements BaseDto {
 
     @NotBlank
@@ -37,7 +36,6 @@ public class UserCreateDto implements BaseDto {
     @NotBlank
     private String organizationId;
 
-    public UserCreateDto() {
-        this.role = AuthRole.EMPLOYEE;
-    }
+    private String warehouseId;
+
 }

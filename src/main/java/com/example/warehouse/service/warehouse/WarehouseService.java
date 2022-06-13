@@ -52,7 +52,6 @@ public class WarehouseService
 
     @Override
     public String create(WarehouseCreateDto dto) {
-        dto.setOrganizationId(getSessionUser().getOrganizationId());
         validation.checkCreate(dto);
         Warehouse warehouse = mapper.fromCreateDto(dto);
         warehouse.setCreatedBy(getSessionUser().getId());

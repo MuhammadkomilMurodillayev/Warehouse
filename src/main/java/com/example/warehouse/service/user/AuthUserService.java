@@ -57,7 +57,7 @@ public class AuthUserService implements UserDetailsService, BaseService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByUserName(username);
+        User user = userRepository.findByUserName(username.toLowerCase());
         if (user != null)
             return new AuthUserDetails(user, organizationRepository.findByIdNotDeleted(user.getOrganizationId()).getStatus());
         else {

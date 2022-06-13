@@ -107,7 +107,7 @@ public class ProductController extends AbstractController<
 
     }
 
-    @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN')")
+    @PreAuthorize(value = "hasAnyRole('SUPER_ADMIN','ADMIN','MANAGER')")
     @GetMapping("/getAllInOrganization")
     protected ResponseEntity<DataDto<List<ProductDto>>> getAllInOrganization(ProductCriteria criteria) {
         return new ResponseEntity<>(new DataDto<>(service.getAllInOrganization(criteria)), HttpStatus.OK);

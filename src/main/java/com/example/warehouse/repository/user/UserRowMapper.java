@@ -30,6 +30,7 @@ public class UserRowMapper implements RowMapper<User> {
             user.setLastName(resultSet.getString("lastname"));
             user.setFirstName(resultSet.getString("firstname"));
             user.setFullName(resultSet.getString("fullname"));
+            user.setPhone(resultSet.getString("phone"));
             user.setStatus(resultSet.getShort("status"));
 
             if (resultSet.getString("role") != null)
